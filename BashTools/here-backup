@@ -1,0 +1,12 @@
+#!/bin/bash
+
+for arg in "$@"; do
+	timestamp=$(date +%Y%m%d_%H%M%S)
+	if [ -d $arg ]; then		
+		rsync -a --no-compress --progress $arg $arg-$timestamp
+	elif [ -f $arg ]; then
+		cp $arg $arg-$timestamp
+	else
+		echo "$arg not found in current directory."
+	fi
+done

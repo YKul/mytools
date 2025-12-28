@@ -1,0 +1,13 @@
+#!/bin/bash
+
+files=(*) newest=""
+for f in ~/Downloads/discord-*.deb; do
+  if [[ $f -nt $newest ]]; then
+    newest=$f
+  fi
+done
+if [[ $newest == *"discord-"*".deb" ]]; then
+	apt install $newest
+  echo "Removing: $newest"
+  rm $newest
+fi
