@@ -144,10 +144,14 @@ class Config:
         optional_analysis = ""
         small_diffs = ""
 
+        #IO settings
         for key in ["seqfile","outfile","treefile"]:
+            #If to be included in file
             if self._settings[key][-1] == True:
+                #Print with the description
                 if self._settings[key][-2] == True:
                     IO_paths += f"{self._settings[key][0]}{key} = {self._settings[key][1]}{self._settings[key][2]}\n"
+                #Print without the description
                 else:
                     IO_paths += f"{self._settings[key][0]}{key} = {self._settings[key][1]}\n"
 

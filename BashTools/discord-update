@@ -7,7 +7,7 @@ for f in ~/Downloads/discord-*.deb; do
   fi
 done
 if [[ $newest == *"discord-"*".deb" ]]; then
-	apt install $newest
+	sudo apt install $newest
   echo "Removing: $newest"
   rm $newest
 fi

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+while ! [[ $time =~ ^[0-9]+$ ]]; do
+	read -p "Connect for how many minutes?: " time
+done
+
+#Convert minutes to seconds
+connection_time=$((time * 60))
+response=true
+max_responses=5
+missed_responses=0
+
+echo 'Starting connection at '$(date '+%H:%M:%S')
+
+gtk-launch com.cisco.secureclient.gui
+
+#Runs until a 'n/no' command has been entered.
+while [ $response  != false ]; do
+	#Counts down the minutes until prompt to continue appears.
+	while [ $connection_time -gt 60 ]; do
+		echo $(( connection_time/60 ))' minute(s) left.'
+		sleep 60s
+		connection_time=$(( connection_time-60 ))
+	done
+	echo -e "\a"
+	echo "You have 60 seconds before prompt."
+	sleep $(( connection_time - 30 ))'s'
+	echo -e "\a"
+	echo "You have 30 seconds before prompt."
+	sleep $(( connection_time - 45 ))'s'
+	echo -e "\a"
+	echo "You have 15 seconds before prompt."
+	sleep $(( connection_time - 45 ))'s'
+	echo -e "\a"	
+	read -t 60 -p "Do you want to stay connected? (y/n): " yn
+	exit_status=$?
+	#Detects that a response has times out
+	if [[ $exit_status -eq 142 ]]; then
+		((missed_responses++))
+		echo -e '\n'$missed_responses' response timeouts.\nYou have '$(( $max_responses-$missed_responses ))' more attempts.\n'
+		if [ $(( $max_responses-$missed_responses )) == 0 ]; then
+			response=false
+		fi
+	else
+	    case $yn in
+	        "Y" | "y" | "YES" | "Yes" | "yes")
+	        	response=true
+	        	missed_responses=0
+	        	time=-1
+	        	while ! [[ $time =~ ^[0-9]+$ ]]; do
+				read -p "Connect for how many minutes?: " time
+			done
+			connection_time=$(( time * 60 ))
+	        	;;
+
+	        "N" | "n" | "No" | "NO" | "no" | "nO")
+	        	response=false
+	        	missed_responses=0
+	        	;;
+	        * ) echo "Invalid response. Please enter y or n."
+	        	missed_responses=0
+	        	;;
+	    esac
+	fi
+done
+
+/opt/cisco/secureclient/bin/vpn disconnect
+
+echo 'Ended connection at '$(date '+%H:%M:%S')
